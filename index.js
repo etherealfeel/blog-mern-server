@@ -1,11 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { registerValidation, loginValidation, postCreateValidation } from './validations/validation.js';
-import checkAuth from './utils/checkAuth.js';
 import multer from 'multer';
-import { register, login, getMe } from './controllers/UserController.js';
-import { createPost, removePost, updatePost, getAll, getOne } from './controllers/PostController.js';
-import handleValidationErrors from './utils/handleValidationErrors.js';
+import { registerValidation, loginValidation, postCreateValidation } from './validations/validation.js';
+import {checkAuth, handleValidationErrors} from './utils/index.js'
+import { register, login, getMe, createPost, removePost, updatePost, getAll, getOne } from './controllers/index.js';
 
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.oqurahn.mongodb.net/blog')
@@ -21,12 +19,12 @@ const storage = multer.diskStorage({
   filename: (_, file, cb) => {
     cb(null, file.originalname);
   },
-})
+});
 
-const upload = multer({ storage })
+const upload = multer({ storage });
 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static('uploads'));
 
 app.post('/auth/register', registerValidation, handleValidationErrors, register);
 app.post('/auth/login', loginValidation, handleValidationErrors, login);
@@ -34,9 +32,9 @@ app.get('/auth/me', checkAuth, getMe);
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   res.json({
-    url: `/uploads/${req.file.originalname}`
-  })
-})
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 
 app.get('/posts', getAll);
 app.get('/posts/:id', getOne);
